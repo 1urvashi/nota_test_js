@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Data Table Example</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+
+<body>
+    <table id="data-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Datetime</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Table rows will be added dynamically here -->
+        </tbody>
+    </table>
+
+    <button id="add-entry">Add New Entry</button>
+
+    <script>
+        // Mock data for the initial table
+        const initialData = [{
+            ID: 1,
+            Name: "Record 1",
+            Datetime: "2023-11-01 10:00:00"
+        }, {
+            ID: 2,
+            Name: "Record 2",
+            Datetime: "2023-11-02 14:30:00"
+        }, ];
+
+        // Function to populate the table with data
+        function populateTable(data) {
+            const tableBody = $("#data-table tbody");
+            tableBody.empty(); // Clear existing rows
+
+            data.forEach((row) => {
+                // Create a new row for each record
+                const newRow = `
+                    <tr data-id="${row.ID}">
+                        <td>${row.ID}</td>
+                        <td><input class="name-input" value="${row.Name}" disabled></td>
+                        <td>${row.Datetime}</td>
+                        <td>
+                            <button class="edit-button">Edit</button>
+                            <button class="delete-button">Delete</button>
+                            <button class="save-button" style="display: none;">Save</button>
+                        </td>
+                    </tr>
+                `;
+                tableBody.append(newRow);
+            });
+        }
+
+        // Initialize the table with initial data
+        populateTable(initialData);
+
+        // Add New Entry button click event
+        $("#add-entry").on("click", () => {
+            // Create input fields and send button
+            const newRow = `
+                <tr>
+                    <td>New</td>
+                    <td><input class="name-input" placeholder="Enter Name"></td>
+                    <td>Now</td>
+                    <td>
+                        <button class="send-button">Send</button>
+                    </td>
+                </tr>
+            `;
+            $("#data-table tbody").prepend(newRow);
+        });
+
+        // Edit button click event
+        $("#data-table").on("click", ".edit-button", function() {
+            const row = $(this).closest("tr");
+            row.find(".name-input").prop("disabled", false);
+            row.find(".edit-button").hide();
+            row.find(".save-button").show();
+        });
+
+        // Save button click event
+        $("#data-table").on("click", ".save-button", function() {
+            const row = $(this).closest("tr");
+            const id = row.data("id");
+            const name = row.find(".name-input").val();
+
+            // Mock API call to update the name
+            $.post("/update", {
+                id,
+                name
+            }, (response) => {
+                if (response.success) {
+                    row.find(".name-input").prop("disabled", true);
+                    row.find(".save-button").hide();
+                    row.find(".edit-button").show();
+                } else {
+                    // Handle the error response here
+                    alert("Error: " + response.error);
+                }
+            });
+        });
+
+        // Delete button click event
+        $("#data-table").on("click", ".delete-button", function() {
+            const row = $(this).closest("tr");
+            const id = row.data("id");
+
+            // Mock API call to delete the record
+            $.post("/delete", {
+                id
+            }, (response) => {
+                if (response.success) {
+                    row.remove();
+                } else {
+                    // Handle the error response here
+                    alert("Error: " + response.error);
+                }
+            });
+        });
+
+        // Send button click event for adding a new entry
+        $("#data-table").on("click", ".send-button", function() {
+            const row = $(this).closest("tr");
+            const name = row.find(".name-input").val();
+
+            // Mock API call to add a new entry
+            $.post("/add", {
+                name
+            }, (response) => {
+                if (response.success) {
+                    row.find("td:first").text(response.id);
+                    row.find(".name-input").prop("disabled", true);
+                    row.find(".send-button").remove();
+                } else {
+                    // Handle the error response here
+                    alert("Error: " + response.error);
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

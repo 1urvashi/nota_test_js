@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Button Reordering</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        .button-container {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .button {
+            padding: 10px;
+            margin: 5px;
+            border: 1px solid #000;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="button-container">
+        <button class="button">1</button>
+        <button class="button">2</button>
+        <button class="button">3</button>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            // Add click event handler to all buttons with class 'button'
+            $('.button').on('click', function() {
+                var currentIndex = $(this).index();
+
+                if (currentIndex > 0) {
+                    // Get the button above the clicked button
+                    var $aboveButton = $('.button').eq(currentIndex - 1);
+                    $(this).insertBefore($aboveButton);
+                } else {
+                    var $belowButton = $('.button').eq(currentIndex + 1);
+                    // Move the clicked button after the below button
+                    $(this).insertAfter($belowButton);
+                }
+            });
+        });
+    </script>
+
+</body>
+
+</html>
